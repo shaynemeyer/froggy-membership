@@ -13,15 +13,16 @@ describe("Registration", function(){
     // happy path
     describe("a valid application", function () {
         var regResult = {};
-
         before(function(done){
-            reg.applyForMembership({
-                email: 'big.dog@gmail.com',
-                password: 'password',
-                confirm: 'password'
-            }, function(err, result){
-                regResult = result;
-                done();
+            db.users.destroyAll(function (err, result) {
+                reg.applyForMembership({
+                    email: 'big.dog@gmail.com',
+                    password: 'password',
+                    confirm: 'password'
+                }, function(err, result){
+                    regResult = result;
+                    done();
+                });
             });
         });
 
@@ -34,17 +35,19 @@ describe("Registration", function(){
 
         });
         it("creates a log entry", function(){
-
-
+            regResult.log.should.be.defined;
         });
 
         it("sets the user's status to approved", function(){
-
+            regResult.user.status.should.equal("approved");
         });
         it("offers a welcome message", function(){
-
+            regResult.message.should.equal("Welcome!");
         });
 
+        it("increments the signInCount", function(){
+           regResult.user.signInCount.should.equal(1);
+        });
     });
 
     describe("an empty or null email", function(){
